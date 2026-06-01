@@ -1,6 +1,7 @@
 import type { Table } from "dexie";
 import { markSaved, markSaving } from "@/lib/save-status-store";
 import { scheduleSyncDebounced } from "@/lib/sync/engine";
+import { ensureDbReady } from "./ready";
 import { getDb } from "./schema";
 import { newId, nowIso } from "@/lib/utils";
 import type { BaseRecord, SyncStatus } from "@/types/base";
@@ -50,6 +51,7 @@ export async function createRecord<T = AnyRecord>(
   tableName: EntityTableName,
   data: Omit<T, keyof BaseRecord>
 ): Promise<T> {
+  await ensureDbReady();
   markSaving();
   const ts = nowIso();
   const record = {
@@ -59,7 +61,7 @@ export async function createRecord<T = AnyRecord>(
     updatedAt: ts,
     syncStatus: "pending" as SyncStatus,
   } as AnyRecord;
-  await getTable(tableName).add(record);
+  await getTable(tableName).put(record);
   await enqueueSync(tableName, record, "upsert");
   markSaved();
   scheduleSyncDebounced();
@@ -71,6 +73,7 @@ export async function updateRecord<T = AnyRecord>(
   id: string,
   data: Partial<T>
 ): Promise<T | undefined> {
+  await ensureDbReady();
   markSaving();
   const existing = await getTable(tableName).get(id);
   if (!existing || existing.deletedAt) {
@@ -95,6 +98,7 @@ export async function getRecord<T = AnyRecord>(
   tableName: EntityTableName,
   id: string
 ): Promise<T | undefined> {
+  await ensureDbReady();
   const r = await getTable(tableName).get(id);
   if (!r || r.deletedAt) return undefined;
   return r as T;
@@ -104,6 +108,7 @@ export async function listRecords<T = AnyRecord>(
   tableName: EntityTableName,
   options?: { parcelaId?: string; areaId?: string; categoria?: string }
 ): Promise<T[]> {
+  await ensureDbReady();
   let collection = getTable(tableName).filter((r) => !r.deletedAt);
   if (options?.parcelaId) {
     const pid = options.parcelaId;
@@ -129,6 +134,7 @@ export async function softDeleteRecord(
   tableName: EntityTableName,
   id: string
 ): Promise<boolean> {
+  await ensureDbReady();
   markSaving();
   const existing = await getTable(tableName).get(id);
   if (!existing) {
@@ -151,6 +157,7 @@ export async function softDeleteRecord(
 export async function countRecords(
   tableName: EntityTableName
 ): Promise<number> {
+  await ensureDbReady();
   return getTable(tableName).filter((r) => !r.deletedAt).count();
 }
 

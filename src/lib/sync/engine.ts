@@ -1,3 +1,4 @@
+import { ensureDbReady } from "@/lib/db/ready";
 import { getDb } from "@/lib/db/schema";
 import { getTable } from "@/lib/db/repository";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -31,6 +32,7 @@ export async function processSyncQueue(): Promise<SyncResult> {
     return { processed: 0, failed: 0, skipped: true };
   }
 
+  await ensureDbReady();
   const supabase = getSupabase();
   if (!supabase) return { processed: 0, failed: 0, skipped: true };
 
@@ -110,6 +112,7 @@ async function syncItem(
 
 export async function pullRemoteUpdates(): Promise<number> {
   if (!isSupabaseConfigured() || !navigator.onLine) return 0;
+  await ensureDbReady();
   const supabase = getSupabase();
   if (!supabase) return 0;
 
@@ -127,18 +130,39 @@ export async function pullRemoteUpdates(): Promise<number> {
       const localId = row.id as string;
       const existing = await localTable.get(localId);
       const mapped = fromSnakeCase(row) as LooseRecord;
+      const remoteDeleted = Boolean(row.deleted_at ?? mapped.deletedAt);
+      if (remoteDeleted) {
+        if (existing) {
+          await localTable.update(localId, {
+            deletedAt: String(row.deleted_at || mapped.deletedAt || nowIso()),
+            syncStatus: "synced",
+          });
+        }
+        continue;
+      }
+
       const mappedUpdated = String(mapped.updatedAt || row.updated_at || "");
-      if (
-        !existing ||
-        new Date(mappedUpdated) > new Date(existing.updatedAt)
-      ) {
+      const localUpdated = existing?.updatedAt
+        ? new Date(existing.updatedAt).getTime()
+        : 0;
+      const remoteUpdated = mappedUpdated
+        ? new Date(mappedUpdated).getTime()
+        : 0;
+
+      if (existing?.syncStatus === "pending") continue;
+
+      if (!existing || remoteUpdated > localUpdated) {
+        const { deletedAt: _d, ...mappedClean } = mapped;
         await localTable.put({
-          ...mapped,
+          ...(existing ?? {}),
+          ...mappedClean,
           id: localId,
           remoteId: localId,
           syncStatus: "synced",
           updatedAt: mappedUpdated || existing?.updatedAt || nowIso(),
-          createdAt: String(mapped.createdAt || row.created_at || nowIso()),
+          createdAt: String(
+            mapped.createdAt || row.created_at || existing?.createdAt || nowIso()
+          ),
         });
         pulled++;
       }
@@ -172,8 +196,9 @@ export async function runFullSync(): Promise<SyncResult> {
   markSaving();
   syncInFlight = (async () => {
     try {
-      await pullRemoteUpdates();
+      // Envia primeiro o que está no aparelho; depois baixa da nuvem.
       const result = await processSyncQueue();
+      await pullRemoteUpdates();
       if (!result.skipped) markSaved();
       return result;
     } finally {

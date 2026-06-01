@@ -32,6 +32,14 @@ export class CadernoDatabase extends Dexie {
 
   constructor() {
     super("CadernoCampoDB");
+
+    this.on("versionchange", () => {
+      this.close();
+      if (typeof window !== "undefined") {
+        window.location.reload();
+      }
+    });
+
     this.version(1).stores({
       configuracao_area:
         "id, syncStatus, updatedAt, experimento, municipio",

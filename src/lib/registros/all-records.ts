@@ -1,3 +1,4 @@
+import { ensureDbReady } from "@/lib/db/ready";
 import { getDb } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
 import type { EntityTableName } from "@/types/entities";
@@ -128,10 +129,8 @@ async function listTableRows(tableName: EntityTableName): Promise<RecordRow[]> {
 export async function listAllRegistros(): Promise<RegistroItem[]> {
   if (typeof window === "undefined") return [];
 
+  await ensureDbReady();
   const database = getDb();
-  if (!database.isOpen()) {
-    await database.open();
-  }
 
   const items: RegistroItem[] = [];
 

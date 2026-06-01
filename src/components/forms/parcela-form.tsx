@@ -15,6 +15,8 @@ import { ComboSelect } from "@/components/ui/combo-select";
 import { Textarea } from "@/components/ui/textarea";
 import { SaveBar } from "@/components/entity/save-bar";
 import { AreaSelect } from "@/components/entity/area-select";
+import { areaDisplayLabel, ensureAreaId } from "@/lib/entity/resolve-links";
+import type { ConfiguracaoArea } from "@/types/entities";
 import { CaptureGps } from "@/components/gps/capture-gps";
 import { scheduleSyncDebounced } from "@/lib/sync/engine";
 
@@ -61,10 +63,17 @@ export function ParcelaForm({
 
   useEffect(() => {
     if (!id) return;
-    getRecord<Parcela>("parcelas", id).then((r) => {
+    getRecord<Parcela>("parcelas", id).then(async (r) => {
       if (r) {
         const { id: _i, createdAt, updatedAt, syncStatus, remoteId, deletedAt, ...rest } = r;
-        setForm(rest);
+        const area = await getRecord<ConfiguracaoArea>(
+          "configuracao_area",
+          rest.areaId
+        );
+        setForm({
+          ...rest,
+          areaId: areaDisplayLabel(area, rest.areaId),
+        });
       }
       setLoaded(true);
     });
@@ -73,18 +82,16 @@ export function ParcelaForm({
   if (id && !loaded) return <p>Carregando…</p>;
 
   const save = async () => {
-    if (!form.areaId) {
-      alert("Selecione a área/experimento.");
-      return;
-    }
     setSaving(true);
     try {
+      const areaId = await ensureAreaId(form.areaId);
+      const payload = { ...form, areaId };
       if (id) {
-        await updateRecord("parcelas", id, form);
+        await updateRecord("parcelas", id, payload);
         scheduleSyncDebounced();
         router.push(`/parcelas/${id}`);
       } else {
-        const created = await createRecord("parcelas", form);
+        const created = await createRecord("parcelas", payload);
         scheduleSyncDebounced();
         router.push(`/parcelas/${created.id}`);
       }
@@ -96,7 +103,7 @@ export function ParcelaForm({
   return (
     <>
       <div className="space-y-4 pb-32">
-        <AreaSelect value={form.areaId} onChange={(v) => setForm((f) => ({ ...f, areaId: v }))} required />
+        <AreaSelect value={form.areaId} onChange={(v) => setForm((f) => ({ ...f, areaId: v }))} />
         <CaptureGps
           onCapture={(lat, lng) =>
             setForm((f) => ({ ...f, latitude: lat, longitude: lng }))

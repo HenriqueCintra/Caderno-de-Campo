@@ -16,6 +16,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { SaveBar } from "@/components/entity/save-bar";
 import { ParcelaSelect } from "@/components/entity/parcela-select";
 import { AreaSelect } from "@/components/entity/area-select";
+import {
+  areaDisplayLabel,
+  ensureAreaId,
+  ensureParcelaId,
+  parcelaDisplayLabel,
+} from "@/lib/entity/resolve-links";
+import type { ConfiguracaoArea, Parcela } from "@/types/entities";
 import { scheduleSyncDebounced } from "@/lib/sync/engine";
 import { calcularLaminaBruta } from "@/lib/calculations/irrigacao";
 import { calcularPrevisaoColheita } from "@/lib/calculations/agrotoxicos";
@@ -91,7 +98,7 @@ export function GenericRecordForm({
 
   useEffect(() => {
     if (!id) return;
-    getRecord(table, id).then((r) => {
+    getRecord(table, id).then(async (r) => {
       if (r) {
         const {
           id: _i,
@@ -103,6 +110,22 @@ export function GenericRecordForm({
           imagemBlobId,
           ...rest
         } = r as Record<string, unknown>;
+
+        if (rest.parcelaId && typeof rest.parcelaId === "string") {
+          const parcela = await getRecord<Parcela>(
+            "parcelas",
+            rest.parcelaId
+          );
+          rest.parcelaId = parcelaDisplayLabel(parcela, rest.parcelaId);
+        }
+        if (rest.areaId && typeof rest.areaId === "string") {
+          const area = await getRecord<ConfiguracaoArea>(
+            "configuracao_area",
+            rest.areaId
+          );
+          rest.areaId = areaDisplayLabel(area, rest.areaId);
+        }
+
         setForm(rest);
         if (imagemBlobId && typeof imagemBlobId === "string") {
           getDb()
@@ -134,17 +157,17 @@ export function GenericRecordForm({
       : "";
 
   const save = async () => {
-    if (type !== "clima" && !form.parcelaId) {
-      alert("Selecione uma parcela.");
-      return;
-    }
-    if (type === "clima" && !form.areaId) {
-      alert("Selecione a área/experimento.");
-      return;
-    }
     setSaving(true);
     try {
       const payload = { ...form };
+      if (type !== "clima") {
+        payload.parcelaId = await ensureParcelaId(
+          String(form.parcelaId ?? "")
+        );
+      }
+      if (type === "clima") {
+        payload.areaId = await ensureAreaId(String(form.areaId ?? ""));
+      }
       if (type === "irrigacao" && laminaAuto != null) {
         payload.laminaBruta = laminaAuto;
       }
@@ -213,7 +236,6 @@ export function GenericRecordForm({
           <ParcelaSelect
             value={(form.parcelaId as string) || ""}
             onChange={(v) => set("parcelaId", v)}
-            required
           />
         )}
 
@@ -221,7 +243,6 @@ export function GenericRecordForm({
           <AreaSelect
             value={(form.areaId as string) || ""}
             onChange={(v) => set("areaId", v)}
-            required
           />
         )}
 
