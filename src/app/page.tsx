@@ -45,8 +45,8 @@ export default function HomePage() {
   return (
     <AppShell title="Caderno de Campo">
       <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
-        Salve e consulte no campo, mesmo sem internet. Sincronização gratuita
-        com Supabase quando houver rede.
+        Salve e consulte no campo, mesmo sem internet. Seus dados ficam
+        guardados neste aparelho.
       </p>
       <div className="grid gap-3">
         {MODULES.map((m) => (

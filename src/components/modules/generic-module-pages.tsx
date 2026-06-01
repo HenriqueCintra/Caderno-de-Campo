@@ -1,6 +1,7 @@
 "use client";
 
-import { use } from "react";
+import { use, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { RecordList } from "@/components/entity/record-list";
 import { RecordDetail } from "@/components/entity/record-detail";
@@ -71,6 +72,7 @@ const CONFIG: Record<
       { label: "Unidade", key: "unidade" },
       { label: "Forma", key: "formaAplicacao" },
       { label: "Responsável", key: "responsavel" },
+      { label: "Observações", key: "observacoes" },
     ],
   },
   agrotoxicos: {
@@ -87,6 +89,7 @@ const CONFIG: Record<
       { label: "Previsão colheita", key: "previsaoColheita" },
       { label: "Dosagem", key: "dosagem" },
       { label: "Responsável", key: "responsavel" },
+      { label: "Observações", key: "observacoes" },
     ],
   },
   colheita: {
@@ -102,6 +105,7 @@ const CONFIG: Record<
       { label: "Plantas", key: "plantasColhidas" },
       { label: "Destino", key: "destino" },
       { label: "Responsável", key: "responsavel" },
+      { label: "Observações", key: "observacoes" },
     ],
   },
   pragas: {
@@ -117,6 +121,7 @@ const CONFIG: Record<
       { label: "Intensidade %", key: "intensidadePct" },
       { label: "Sintomas", key: "sintomas" },
       { label: "Responsável", key: "responsavel" },
+      { label: "Observações", key: "observacoes" },
     ],
   },
   doencas: {
@@ -134,6 +139,7 @@ const CONFIG: Record<
       { label: "Ramos", key: "incidenciaRamos" },
       { label: "Sintomas", key: "sintomas" },
       { label: "Responsável", key: "responsavel" },
+      { label: "Observações", key: "observacoes" },
     ],
   },
   clima: {
@@ -150,6 +156,7 @@ const CONFIG: Record<
       { label: "ETo", key: "eto" },
       { label: "Ocorrências", key: "ocorrencias" },
       { label: "Responsável", key: "responsavel" },
+      { label: "Observações", key: "observacoes" },
     ],
   },
 };
@@ -168,12 +175,24 @@ export function ModuleList({ type }: { type: FormType }) {
   );
 }
 
-export function ModuleNovo({ type }: { type: FormType }) {
+function ModuleNovoInner({ type }: { type: FormType }) {
   const c = CONFIG[type];
+  const searchParams = useSearchParams();
+  const initialAreaId =
+    type === "clima" ? searchParams.get("areaId") ?? undefined : undefined;
+
   return (
     <AppShell title={`Novo — ${c.title}`}>
-      <GenericRecordForm type={type} />
+      <GenericRecordForm type={type} initialAreaId={initialAreaId} />
     </AppShell>
+  );
+}
+
+export function ModuleNovo({ type }: { type: FormType }) {
+  return (
+    <Suspense fallback={<p>Carregando…</p>}>
+      <ModuleNovoInner type={type} />
+    </Suspense>
   );
 }
 

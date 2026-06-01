@@ -1,4 +1,6 @@
 import type { Table } from "dexie";
+import { markSaved, markSaving } from "@/lib/save-status-store";
+import { scheduleSyncDebounced } from "@/lib/sync/engine";
 import { getDb } from "./schema";
 import { newId, nowIso } from "@/lib/utils";
 import type { BaseRecord, SyncStatus } from "@/types/base";
@@ -21,6 +23,7 @@ const TABLE_MAP: Record<EntityTableName, () => Table<AnyRecord, string>> = {
   monitoramento_pragas: () => asAnyTable(getDb().monitoramento_pragas),
   monitoramento_doencas: () => asAnyTable(getDb().monitoramento_doencas),
   clima: () => asAnyTable(getDb().clima),
+  observacoes: () => asAnyTable(getDb().observacoes),
 };
 
 export function getTable(tableName: EntityTableName): Table<AnyRecord, string> {
@@ -47,6 +50,7 @@ export async function createRecord<T = AnyRecord>(
   tableName: EntityTableName,
   data: Omit<T, keyof BaseRecord>
 ): Promise<T> {
+  markSaving();
   const ts = nowIso();
   const record = {
     ...data,
@@ -57,6 +61,8 @@ export async function createRecord<T = AnyRecord>(
   } as AnyRecord;
   await getTable(tableName).add(record);
   await enqueueSync(tableName, record, "upsert");
+  markSaved();
+  scheduleSyncDebounced();
   return record as T;
 }
 
@@ -65,8 +71,12 @@ export async function updateRecord<T = AnyRecord>(
   id: string,
   data: Partial<T>
 ): Promise<T | undefined> {
+  markSaving();
   const existing = await getTable(tableName).get(id);
-  if (!existing || existing.deletedAt) return undefined;
+  if (!existing || existing.deletedAt) {
+    markSaved();
+    return undefined;
+  }
   const updated = {
     ...existing,
     ...data,
@@ -76,6 +86,8 @@ export async function updateRecord<T = AnyRecord>(
   } as AnyRecord;
   await getTable(tableName).put(updated);
   await enqueueSync(tableName, updated, "upsert");
+  markSaved();
+  scheduleSyncDebounced();
   return updated as T;
 }
 
@@ -90,7 +102,7 @@ export async function getRecord<T = AnyRecord>(
 
 export async function listRecords<T = AnyRecord>(
   tableName: EntityTableName,
-  options?: { parcelaId?: string; areaId?: string }
+  options?: { parcelaId?: string; areaId?: string; categoria?: string }
 ): Promise<T[]> {
   let collection = getTable(tableName).filter((r) => !r.deletedAt);
   if (options?.parcelaId) {
@@ -100,6 +112,10 @@ export async function listRecords<T = AnyRecord>(
   if (options?.areaId) {
     const aid = options.areaId;
     collection = collection.filter((r) => r.areaId === aid);
+  }
+  if (options?.categoria) {
+    const cat = options.categoria;
+    collection = collection.filter((r) => r.categoria === cat);
   }
   const items = await collection.toArray();
   return items.sort((a, b) => {
@@ -113,8 +129,12 @@ export async function softDeleteRecord(
   tableName: EntityTableName,
   id: string
 ): Promise<boolean> {
+  markSaving();
   const existing = await getTable(tableName).get(id);
-  if (!existing) return false;
+  if (!existing) {
+    markSaved();
+    return false;
+  }
   const updated = {
     ...existing,
     deletedAt: nowIso(),
@@ -123,6 +143,8 @@ export async function softDeleteRecord(
   };
   await getTable(tableName).put(updated);
   await enqueueSync(tableName, updated, "delete");
+  markSaved();
+  scheduleSyncDebounced();
   return true;
 }
 

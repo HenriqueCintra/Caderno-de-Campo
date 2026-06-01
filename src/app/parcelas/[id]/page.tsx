@@ -26,6 +26,7 @@ export default function ParcelaDetailPage({
           { label: "Área (ha)", key: "areaHa" },
           { label: "Espaçamento", key: "espacamento" },
           { label: "Densidade", key: "densidade" },
+          { label: "Observações", key: "observacoes" },
         ]}
       />
     </AppShell>

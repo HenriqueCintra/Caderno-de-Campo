@@ -56,10 +56,6 @@ export function RecordDetail({
             </div>
           ))}
           <div>
-            <dt className="text-xs text-zinc-500 uppercase">Sync</dt>
-            <dd>{String(record.syncStatus)}</dd>
-          </div>
-          <div>
             <dt className="text-xs text-zinc-500 uppercase">Atualizado</dt>
             <dd>{formatDate(String(record.updatedAt).slice(0, 10))}</dd>
           </div>

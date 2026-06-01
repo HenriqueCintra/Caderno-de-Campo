@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/utils";
 
 export default function CapaListPage() {
   return (
-    <AppShell title="Configuração (Capa)">
+    <AppShell title="Detalhamento da área">
       <RecordList
         table="configuracao_area"
         basePath="/capa"

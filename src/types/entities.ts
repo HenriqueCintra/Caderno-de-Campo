@@ -1,5 +1,19 @@
 import type { BaseRecord, QualidadeColheita } from "./base";
 
+export type ObservacaoCategoria =
+  | "detalhamento"
+  | "parcelas"
+  | "tratos"
+  | "clima";
+
+export interface Observacao extends BaseRecord {
+  areaId: string;
+  categoria: ObservacaoCategoria;
+  data: string;
+  responsavel: string;
+  texto: string;
+}
+
 export interface ConfiguracaoArea extends BaseRecord {
   supervisor: string;
   responsavelTecnico: string;
@@ -26,6 +40,7 @@ export interface Parcela extends BaseRecord {
   areaHa: number | null;
   espacamento: string;
   densidade: number | null;
+  observacoes: string;
 }
 
 export interface TratoCultural extends BaseRecord {
@@ -68,6 +83,7 @@ export interface Agrotoxico extends BaseRecord {
   dosagem: string;
   volumeCalda: string;
   responsavel: string;
+  observacoes: string;
 }
 
 export interface Colheita extends BaseRecord {
@@ -78,6 +94,7 @@ export interface Colheita extends BaseRecord {
   plantasColhidas: number | null;
   destino: string;
   responsavel: string;
+  observacoes: string;
 }
 
 export interface MonitoramentoPraga extends BaseRecord {
@@ -88,6 +105,7 @@ export interface MonitoramentoPraga extends BaseRecord {
   intensidadePct: number | null;
   sintomas: string;
   responsavel: string;
+  observacoes: string;
 }
 
 export interface MonitoramentoDoenca extends BaseRecord {
@@ -102,6 +120,7 @@ export interface MonitoramentoDoenca extends BaseRecord {
   imagemBlobId?: string;
   imagemUrl?: string;
   responsavel: string;
+  observacoes: string;
 }
 
 export interface Clima extends BaseRecord {
@@ -113,6 +132,7 @@ export interface Clima extends BaseRecord {
   eto: number | null;
   ocorrencias: string;
   responsavel: string;
+  observacoes: string;
 }
 
 export interface ImagemBlob extends BaseRecord {
@@ -143,4 +163,5 @@ export type EntityTableName =
   | "colheita"
   | "monitoramento_pragas"
   | "monitoramento_doencas"
-  | "clima";
+  | "clima"
+  | "observacoes";

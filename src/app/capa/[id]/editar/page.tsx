@@ -11,7 +11,7 @@ export default function CapaEditPage({
 }) {
   const { id } = use(params);
   return (
-    <AppShell title="Editar Capa">
+    <AppShell title="Editar detalhamento da área">
       <CapaForm id={id} />
     </AppShell>
   );

@@ -37,7 +37,7 @@ export function AreaSelect({
       </Select>
       {areas?.length === 0 && (
         <p className="text-sm text-amber-700 mt-1">
-          Cadastre a Configuração (Capa) primeiro.
+          Cadastre o detalhamento da área primeiro.
         </p>
       )}
     </div>

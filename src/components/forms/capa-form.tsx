@@ -12,7 +12,7 @@ import { CULTURAS, SETORES, VARIEDADES } from "@/lib/constants/dropdowns";
 import { todayIsoDate } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { ComboSelect } from "@/components/ui/combo-select";
 import { SaveBar } from "@/components/entity/save-bar";
 import { scheduleSyncDebounced } from "@/lib/sync/engine";
 
@@ -81,9 +81,9 @@ export function CapaForm({ id }: { id?: string }) {
         <div><Label>Telefones</Label><Input inputMode="tel" value={form.telefones} onChange={(e) => set("telefones", e.target.value)} /></div>
         <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></div>
         <div><Label>Data Plantio</Label><Input type="date" value={form.dataPlantio} onChange={(e) => set("dataPlantio", e.target.value)} /></div>
-        <div><Label>Setor</Label><Select value={form.setor} onChange={(e) => set("setor", e.target.value)}>{SETORES.map((s) => <option key={s} value={s}>{s}</option>)}</Select></div>
-        <div><Label>Cultura</Label><Select value={form.cultura} onChange={(e) => set("cultura", e.target.value)}>{CULTURAS.map((c) => <option key={c} value={c}>{c}</option>)}</Select></div>
-        <div><Label>Variedade</Label><Select value={form.variedade} onChange={(e) => set("variedade", e.target.value)}>{VARIEDADES.map((v) => <option key={v} value={v}>{v}</option>)}</Select></div>
+        <div><Label>Setor</Label><ComboSelect id="setor" value={form.setor} onChange={(v) => set("setor", v)} options={SETORES} /></div>
+        <div><Label>Cultura</Label><ComboSelect id="cultura" value={form.cultura} onChange={(v) => set("cultura", v)} options={CULTURAS} /></div>
+        <div><Label>Variedade</Label><ComboSelect id="variedade" value={form.variedade} onChange={(v) => set("variedade", v)} options={VARIEDADES} /></div>
         <div><Label>Espaçamento</Label><Input value={form.espacamento} onChange={(e) => set("espacamento", e.target.value)} /></div>
         <div><Label>Experimento</Label><Input value={form.experimento} onChange={(e) => set("experimento", e.target.value)} /></div>
         <div><Label>Tamanho Área (ha)</Label><Input type="number" inputMode="decimal" value={form.tamanhoArea ?? ""} onChange={(e) => set("tamanhoArea", e.target.value ? Number(e.target.value) : null)} /></div>

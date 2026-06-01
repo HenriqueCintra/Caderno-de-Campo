@@ -3,6 +3,7 @@ import { getTable } from "@/lib/db/repository";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { EntityTableName, SyncQueueItem } from "@/types/entities";
 import { SYNC_ORDER, toSnakeCase } from "./mapper";
+import { markSaved, markSaving } from "@/lib/save-status-store";
 import { nowIso } from "@/lib/utils";
 
 type LooseRecord = {
@@ -159,10 +160,33 @@ function fromSnakeCase(row: Record<string, unknown>): Record<string, unknown> {
 }
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+let syncInFlight: Promise<SyncResult> | null = null;
 
-export function scheduleSyncDebounced(delayMs = 8000) {
+/** Baixa da nuvem e envia pendências — mantém dados online após fechar o app. */
+export async function runFullSync(): Promise<SyncResult> {
+  if (!isSupabaseConfigured() || !navigator.onLine) {
+    return { processed: 0, failed: 0, skipped: true };
+  }
+  if (syncInFlight) return syncInFlight;
+
+  markSaving();
+  syncInFlight = (async () => {
+    try {
+      await pullRemoteUpdates();
+      const result = await processSyncQueue();
+      if (!result.skipped) markSaved();
+      return result;
+    } finally {
+      syncInFlight = null;
+    }
+  })();
+
+  return syncInFlight;
+}
+
+export function scheduleSyncDebounced(delayMs = 1500) {
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    void processSyncQueue();
+    void runFullSync();
   }, delayMs);
 }

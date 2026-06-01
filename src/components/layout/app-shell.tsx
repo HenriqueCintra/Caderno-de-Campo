@@ -1,7 +1,7 @@
 "use client";
 
 import { BottomNav } from "./bottom-nav";
-import { SyncBadge } from "./sync-badge";
+import { SaveStatusIndicator } from "./save-status-indicator";
 
 export function AppShell({
   title,
@@ -18,7 +18,7 @@ export function AppShell({
         <div className="mx-auto flex max-w-lg items-center justify-between gap-2">
           <h1 className="text-lg font-bold truncate">{title}</h1>
           <div className="flex shrink-0 items-center gap-2">
-            <SyncBadge />
+            <SaveStatusIndicator />
             {action}
           </div>
         </div>

@@ -11,7 +11,8 @@ import type { Parcela } from "@/types/entities";
 import { SISTEMAS_IRRIGACAO } from "@/lib/constants/dropdowns";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { ComboSelect } from "@/components/ui/combo-select";
+import { Textarea } from "@/components/ui/textarea";
 import { SaveBar } from "@/components/entity/save-bar";
 import { AreaSelect } from "@/components/entity/area-select";
 import { CaptureGps } from "@/components/gps/capture-gps";
@@ -27,6 +28,7 @@ type ParcelaFormState = {
   areaHa: number | null;
   espacamento: string;
   densidade: number | null;
+  observacoes: string;
 };
 
 const emptyParcela = (): ParcelaFormState => ({
@@ -39,11 +41,21 @@ const emptyParcela = (): ParcelaFormState => ({
   areaHa: null,
   espacamento: "",
   densidade: null,
+  observacoes: "",
 });
 
-export function ParcelaForm({ id }: { id?: string }) {
+export function ParcelaForm({
+  id,
+  initialAreaId,
+}: {
+  id?: string;
+  initialAreaId?: string;
+}) {
   const router = useRouter();
-  const [form, setForm] = useState<ParcelaFormState>(emptyParcela);
+  const [form, setForm] = useState<ParcelaFormState>(() => ({
+    ...emptyParcela(),
+    areaId: initialAreaId ?? "",
+  }));
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(!id);
 
@@ -122,10 +134,11 @@ export function ParcelaForm({ id }: { id?: string }) {
         </div>
         <div><Label>Cultivar</Label><Input value={form.cultivar} onChange={(e) => setForm((f) => ({ ...f, cultivar: e.target.value }))} /></div>
         <div><Label>Ano Plantio</Label><Input type="number" value={form.anoPlantio ?? ""} onChange={(e) => setForm((f) => ({ ...f, anoPlantio: Number(e.target.value) }))} /></div>
-        <div><Label>Sistema Irrigação</Label><Select value={form.sistemaIrrigacao} onChange={(e) => setForm((f) => ({ ...f, sistemaIrrigacao: e.target.value }))}>{SISTEMAS_IRRIGACAO.map((s) => <option key={s} value={s}>{s}</option>)}</Select></div>
+        <div><Label>Sistema Irrigação</Label><ComboSelect id="sistema-irrigacao" value={form.sistemaIrrigacao} onChange={(v) => setForm((f) => ({ ...f, sistemaIrrigacao: v }))} options={SISTEMAS_IRRIGACAO} /></div>
         <div><Label>Área (ha)</Label><Input type="number" inputMode="decimal" value={form.areaHa ?? ""} onChange={(e) => setForm((f) => ({ ...f, areaHa: e.target.value ? Number(e.target.value) : null }))} /></div>
         <div><Label>Espaçamento</Label><Input value={form.espacamento} onChange={(e) => setForm((f) => ({ ...f, espacamento: e.target.value }))} /></div>
         <div><Label>Densidade</Label><Input type="number" inputMode="decimal" value={form.densidade ?? ""} onChange={(e) => setForm((f) => ({ ...f, densidade: e.target.value ? Number(e.target.value) : null }))} /></div>
+        <div><Label>Observações</Label><Textarea value={form.observacoes} onChange={(e) => setForm((f) => ({ ...f, observacoes: e.target.value }))} /></div>
       </div>
       <SaveBar saving={saving} onSave={save} />
     </>

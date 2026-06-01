@@ -1,30 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { MODULES } from "@/lib/modules/registry";
-
-const REGISTRO_MODULES = MODULES.filter(
-  (m) => !["capa", "parcelas", "clima"].includes(m.id)
-);
+import { AllRecordsList } from "@/components/registros/all-records-list";
 
 export default function RegistrosPage() {
   return (
     <AppShell title="Registros">
-      <p className="mb-4 text-sm text-zinc-600">
-        Tratos, irrigação, nutrição, defensivos, colheita e monitoramento.
+      <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+        Todos os cadastros feitos no caderno, do mais recente ao mais antigo.
       </p>
-      <div className="grid gap-3">
-        {REGISTRO_MODULES.map((m) => (
-          <Link key={m.id} href={m.path}>
-            <Card>
-              <CardTitle>{m.title}</CardTitle>
-              <CardDescription>{m.description}</CardDescription>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <AllRecordsList />
     </AppShell>
   );
 }

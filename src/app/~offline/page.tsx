@@ -4,7 +4,7 @@ export default function OfflinePage() {
       <h1 className="text-2xl font-bold">Você está offline</h1>
       <p className="mt-4 max-w-sm">
         O Caderno de Campo continua funcionando. Seus dados estão salvos neste
-        aparelho. Reabra a página quando tiver conexão para sincronizar.
+        aparelho.
       </p>
     </div>
   );

@@ -57,8 +57,6 @@ export function RecordList({
                   </p>
                 )}
                 <p className="text-xs text-zinc-400 mt-2">
-                  {r.syncStatus === "pending" && "· pendente sync "}
-                  {r.syncStatus === "error" && "· erro sync "}
                   Atualizado {formatDate(r.updatedAt.slice(0, 10))}
                 </p>
               </Card>

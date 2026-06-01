@@ -32,4 +32,5 @@ export const SYNC_ORDER: EntityTableName[] = [
   "monitoramento_pragas",
   "monitoramento_doencas",
   "clima",
+  "observacoes",
 ];

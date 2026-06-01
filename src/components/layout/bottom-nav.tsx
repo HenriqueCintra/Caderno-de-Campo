@@ -5,20 +5,16 @@ import { usePathname } from "next/navigation";
 import {
   ClipboardList,
   CloudSun,
-  FileText,
   Grid3X3,
   MapPin,
-  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Início", icon: Grid3X3 },
-  { href: "/capa", label: "Capa", icon: FileText },
   { href: "/parcelas", label: "Parcelas", icon: MapPin },
   { href: "/registros", label: "Registros", icon: ClipboardList },
   { href: "/clima", label: "Clima", icon: CloudSun },
-  { href: "/sync", label: "Sync", icon: RefreshCw },
 ];
 
 export function BottomNav() {

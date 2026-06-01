@@ -5,7 +5,7 @@ import { CapaForm } from "@/components/forms/capa-form";
 
 export default function CapaNovoPage() {
   return (
-    <AppShell title="Nova Capa">
+    <AppShell title="Novo detalhamento da área">
       <CapaForm />
     </AppShell>
   );

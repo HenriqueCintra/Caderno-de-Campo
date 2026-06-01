@@ -9,6 +9,7 @@ import type {
   MonitoramentoDoenca,
   MonitoramentoPraga,
   Nutricao,
+  Observacao,
   Parcela,
   SyncQueueItem,
   TratoCultural,
@@ -25,6 +26,7 @@ export class CadernoDatabase extends Dexie {
   monitoramento_pragas!: Table<MonitoramentoPraga, string>;
   monitoramento_doencas!: Table<MonitoramentoDoenca, string>;
   clima!: Table<Clima, string>;
+  observacoes!: Table<Observacao, string>;
   imagens_blob!: Table<ImagemBlob, string>;
   sync_queue!: Table<SyncQueueItem, number>;
 
@@ -45,6 +47,25 @@ export class CadernoDatabase extends Dexie {
       monitoramento_doencas:
         "id, parcelaId, data, syncStatus, updatedAt",
       clima: "id, areaId, data, syncStatus, updatedAt",
+      imagens_blob: "id, entityId, syncStatus, updatedAt",
+      sync_queue: "++id, tableName, recordId, createdAt",
+    });
+    this.version(2).stores({
+      configuracao_area:
+        "id, syncStatus, updatedAt, experimento, municipio",
+      parcelas: "id, areaId, syncStatus, updatedAt, cultivar",
+      tratos_culturais:
+        "id, parcelaId, data, syncStatus, updatedAt",
+      irrigacao: "id, parcelaId, data, syncStatus, updatedAt",
+      nutricao: "id, parcelaId, data, syncStatus, updatedAt",
+      agrotoxicos: "id, parcelaId, data, syncStatus, updatedAt",
+      colheita: "id, parcelaId, data, syncStatus, updatedAt",
+      monitoramento_pragas:
+        "id, parcelaId, data, syncStatus, updatedAt",
+      monitoramento_doencas:
+        "id, parcelaId, data, syncStatus, updatedAt",
+      clima: "id, areaId, data, syncStatus, updatedAt",
+      observacoes: "id, areaId, categoria, data, syncStatus, updatedAt",
       imagens_blob: "id, entityId, syncStatus, updatedAt",
       sync_queue: "++id, tableName, recordId, createdAt",
     });

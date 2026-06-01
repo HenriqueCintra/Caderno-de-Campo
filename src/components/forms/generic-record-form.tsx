@@ -11,7 +11,7 @@ import type { EntityTableName } from "@/types/entities";
 import { todayIsoDate } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { ComboSelect } from "@/components/ui/combo-select";
 import { Textarea } from "@/components/ui/textarea";
 import { SaveBar } from "@/components/entity/save-bar";
 import { ParcelaSelect } from "@/components/entity/parcela-select";
@@ -69,9 +69,11 @@ const PATH_MAP: Record<FormType, string> = {
 export function GenericRecordForm({
   type,
   id,
+  initialAreaId,
 }: {
   type: FormType;
   id?: string;
+  initialAreaId?: string;
 }) {
   const router = useRouter();
   const table = TABLE_MAP[type];
@@ -82,7 +84,7 @@ export function GenericRecordForm({
   const [form, setForm] = useState<Record<string, unknown>>({
     data: todayIsoDate(),
     parcelaId: "",
-    areaId: "",
+    areaId: initialAreaId ?? "",
     responsavel: "",
     observacoes: "",
   });
@@ -227,16 +229,12 @@ export function GenericRecordForm({
           <>
             <div>
               <Label>Tipo de Trato</Label>
-              <Select
+              <ComboSelect
+                id="tipo-trato"
                 value={(form.tipoTrato as string) || ""}
-                onChange={(e) => set("tipoTrato", e.target.value)}
-              >
-                {TIPOS_TRATO.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("tipoTrato", v)}
+                options={TIPOS_TRATO}
+              />
             </div>
             <div>
               <Label>Observações</Label>
@@ -339,30 +337,22 @@ export function GenericRecordForm({
               </div>
               <div>
                 <Label>Unidade</Label>
-                <Select
+                <ComboSelect
+                  id="unidade"
                   value={(form.unidade as string) || UNIDADES[0]}
-                  onChange={(e) => set("unidade", e.target.value)}
-                >
-                  {UNIDADES.map((u) => (
-                    <option key={u} value={u}>
-                      {u}
-                    </option>
-                  ))}
-                </Select>
+                  onChange={(v) => set("unidade", v)}
+                  options={UNIDADES}
+                />
               </div>
             </div>
             <div>
               <Label>Forma aplicação</Label>
-              <Select
+              <ComboSelect
+                id="forma-aplicacao"
                 value={(form.formaAplicacao as string) || ""}
-                onChange={(e) => set("formaAplicacao", e.target.value)}
-              >
-                {FORMAS_APLICACAO.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("formaAplicacao", v)}
+                options={FORMAS_APLICACAO}
+              />
             </div>
             <div>
               <Label>Observações</Label>
@@ -378,16 +368,12 @@ export function GenericRecordForm({
           <>
             <div>
               <Label>Fenologia</Label>
-              <Select
+              <ComboSelect
+                id="fenologia-agro"
                 value={(form.fenologia as string) || ""}
-                onChange={(e) => set("fenologia", e.target.value)}
-              >
-                {FENOLOGIAS.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("fenologia", v)}
+                options={FENOLOGIAS}
+              />
             </div>
             <div>
               <Label>Produto</Label>
@@ -436,6 +422,13 @@ export function GenericRecordForm({
                 onChange={(e) => set("volumeCalda", e.target.value)}
               />
             </div>
+            <div>
+              <Label>Observações</Label>
+              <Textarea
+                value={(form.observacoes as string) || ""}
+                onChange={(e) => set("observacoes", e.target.value)}
+              />
+            </div>
           </>
         )}
 
@@ -456,16 +449,12 @@ export function GenericRecordForm({
             </div>
             <div>
               <Label>Qualidade</Label>
-              <Select
+              <ComboSelect
+                id="qualidade"
                 value={(form.qualidade as string) || QUALIDADES[0]}
-                onChange={(e) => set("qualidade", e.target.value)}
-              >
-                {QUALIDADES.map((q) => (
-                  <option key={q} value={q}>
-                    {q}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("qualidade", v)}
+                options={QUALIDADES}
+              />
             </div>
             <div>
               <Label>Plantas colhidas</Label>
@@ -482,16 +471,19 @@ export function GenericRecordForm({
             </div>
             <div>
               <Label>Destino</Label>
-              <Select
+              <ComboSelect
+                id="destino"
                 value={(form.destino as string) || ""}
-                onChange={(e) => set("destino", e.target.value)}
-              >
-                {DESTINOS_COLHEITA.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("destino", v)}
+                options={DESTINOS_COLHEITA}
+              />
+            </div>
+            <div>
+              <Label>Observações</Label>
+              <Textarea
+                value={(form.observacoes as string) || ""}
+                onChange={(e) => set("observacoes", e.target.value)}
+              />
             </div>
           </>
         )}
@@ -500,29 +492,21 @@ export function GenericRecordForm({
           <>
             <div>
               <Label>Praga</Label>
-              <Select
+              <ComboSelect
+                id="praga"
                 value={(form.praga as string) || ""}
-                onChange={(e) => set("praga", e.target.value)}
-              >
-                {PRAGAS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("praga", v)}
+                options={PRAGAS}
+              />
             </div>
             <div>
               <Label>Fenologia</Label>
-              <Select
+              <ComboSelect
+                id="fenologia-praga"
                 value={(form.fenologia as string) || ""}
-                onChange={(e) => set("fenologia", e.target.value)}
-              >
-                {FENOLOGIAS.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("fenologia", v)}
+                options={FENOLOGIAS}
+              />
             </div>
             <div>
               <Label>Intensidade (%)</Label>
@@ -544,6 +528,13 @@ export function GenericRecordForm({
                 onChange={(e) => set("sintomas", e.target.value)}
               />
             </div>
+            <div>
+              <Label>Observações</Label>
+              <Textarea
+                value={(form.observacoes as string) || ""}
+                onChange={(e) => set("observacoes", e.target.value)}
+              />
+            </div>
           </>
         )}
 
@@ -551,29 +542,21 @@ export function GenericRecordForm({
           <>
             <div>
               <Label>Doença</Label>
-              <Select
+              <ComboSelect
+                id="doenca"
                 value={(form.doenca as string) || ""}
-                onChange={(e) => set("doenca", e.target.value)}
-              >
-                {DOENCAS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("doenca", v)}
+                options={DOENCAS}
+              />
             </div>
             <div>
               <Label>Fenologia</Label>
-              <Select
+              <ComboSelect
+                id="fenologia-doenca"
                 value={(form.fenologia as string) || ""}
-                onChange={(e) => set("fenologia", e.target.value)}
-              >
-                {FENOLOGIAS.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </Select>
+                onChange={(v) => set("fenologia", v)}
+                options={FENOLOGIAS}
+              />
             </div>
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2">
@@ -624,6 +607,13 @@ export function GenericRecordForm({
                   className="mt-2 max-h-48 rounded-xl object-cover"
                 />
               )}
+            </div>
+            <div>
+              <Label>Observações</Label>
+              <Textarea
+                value={(form.observacoes as string) || ""}
+                onChange={(e) => set("observacoes", e.target.value)}
+              />
             </div>
           </>
         )}
@@ -677,6 +667,13 @@ export function GenericRecordForm({
               <Textarea
                 value={(form.ocorrencias as string) || ""}
                 onChange={(e) => set("ocorrencias", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Observações</Label>
+              <Textarea
+                value={(form.observacoes as string) || ""}
+                onChange={(e) => set("observacoes", e.target.value)}
               />
             </div>
           </>
